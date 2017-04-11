@@ -6,30 +6,22 @@ dictionary = File.readlines('words.txt').map(&:chomp).map(&:downcase)
 WORDS = [
   'pod',
   'nod',
-  'cat'
+  'cat',
+  'dent'
 ]
 
 describe('Grid poetry') do
   WORDS.each do |word|
     it("finds a grid rhyme for #{word}") do
-      words = grid_poem(dictionary, word)
+      grid = grid_poem(dictionary, word)
 
-      puts words
+      puts grid.map { |chars| chars.join(' ') }.join("\n")
 
-      expect(words.first).to eq word
+      expect(grid.first.join).to eq word
 
-      words.each do |word|
-        expect(dictionary).to include word
-      end
+      words = grid.map(&:join) + grid.transpose.map(&:join)
 
-      rotated_words = words
-        .map { |w| w.split('') }
-        .transpose
-        .map { |w| w.join }
-
-      rotated_words.each do |word|
-        expect(dictionary).to include word
-      end
+      expect(dictionary).to include(*words)
     end
   end
 end

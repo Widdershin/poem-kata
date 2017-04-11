@@ -1,3 +1,5 @@
+require 'set'
+require 'pry'
 
 # A grid poem is a poem where each row and column form a valid word
 #
@@ -22,24 +24,31 @@ def grid_poem(dictionary, word)
   word_length = word.length
   characters = word.split('')
 
-  words_of_length = dictionary.select { |w| w.length == word_length }
+  words_of_length = Set.new(dictionary.select { |w| w.length == word_length }.map { |a| a.split('') })
 
-  possible_solutions = words_of_length.permutation(2)
+  possible_solutions = words_of_length.to_a.permutation(word_length - 1)
 
+  i = 0
   result = possible_solutions.find do |solution|
-    grid = [
-      characters,
-      *solution.map { |w| w.split('') }
-    ]
+    grid = [characters] + solution
 
-    grid.transpose.map { |characters| characters.join }
-      .all? { |word| dictionary.include? word }
+    words = grid.map(&:join) + grid.transpose.map(&:join)
+
+    all_unique = words.uniq.length == words.length
+    all_valid = words.all? { |w| words_of_length.include? w.split('') }
+
+    i += 1
+    if i % 10000 == 0
+      p i
+    end
+
+    all_unique && all_valid
   end
 
   return nil if result.nil?
 
   [
-    word,
+    characters,
     *result
   ]
 end
